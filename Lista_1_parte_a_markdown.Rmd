@@ -1,0 +1,129 @@
+---
+title: "AEDV - Visualização - Lista1"
+author: "Daniel de Miranda Almeida"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# install.packages("ggplot2")
+# install.packages("gridExtra")
+library(ggplot2)
+library(gridExtra)
+
+p1 <-
+  ggplot(anscombe, aes(x = x1, y = y1)) + geom_point(color = "black") + 
+  scale_x_continuous(breaks = seq(0, 22, 2)) + 
+  scale_y_continuous(breaks = seq(0, 14, 2)) +
+  expand_limits(x = 0, y = 0) +
+  labs(title = "Dataset 1", x = "x1", y = "y1")
+
+p2 <-
+  ggplot(anscombe, aes(x = x2, y = y2)) + geom_point(color = "black") + 
+  scale_x_continuous(breaks = seq(0, 22, 2)) + 
+  scale_y_continuous(breaks = seq(0, 14, 2)) +
+  expand_limits(x = 0, y = 0) +
+  labs(title = "Dataset 2", x = "x2", y = "y2")
+  
+
+p3 <-
+  ggplot(anscombe, aes(x = x3, y = y3)) + geom_point(color = "black") + 
+  scale_x_continuous(breaks = seq(0, 22, 2)) + 
+  scale_y_continuous(breaks = seq(0, 14, 2)) +
+  expand_limits(x = 0, y = 0) +
+  labs(title = "Dataset 3", x = "x3", y = "y3")
+
+p4 <-
+  ggplot(anscombe, aes(x = x4, y = y4)) + geom_point(color = "black") + 
+  scale_x_continuous(breaks = seq(0, 22, 2)) + 
+  scale_y_continuous(breaks = seq(0, 14, 2)) +
+  expand_limits(x = 0, y = 0) +
+  labs(title = "Dataset 4", x = "x4", y = "y4")
+
+lm1 <- lm(y1~x1, data = anscombe)
+lm2 <- lm(y2~x2, data = anscombe)
+lm3 <- lm(y3~x3, data = anscombe)
+lm4 <- lm(y4~x4, data = anscombe)
+
+linha1 <- coef(lm1)
+linha2 <- coef(lm2)
+linha3 <- coef(lm3)
+linha4 <- coef(lm4)
+
+p1_linha <- p1 + geom_abline(intercept = linha1[1],
+                             slope =  linha1[2],
+                             col="blue")
+p2_linha <- p2 + geom_abline(intercept = linha2[1],
+                             slope = linha2[2],
+                             col="blue")
+p3_linha <- p3 + geom_abline(intercept = linha3[1],
+                             slope = linha3[2],
+                             col="blue")
+p4_linha <- p4 + geom_abline(intercept = linha4[1],
+                             slope = linha4[2],
+                             col="blue")
+
+quarteto_anscombe <- list(p1_linha, p2_linha, p3_linha, p4_linha)
+
+grid.arrange(grobs = quarteto_anscombe, ncol = 2, top = "Quarteto de Anscombe")
+```
+
+## Parte B
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(gapminder)
+
+# gráficos feitos no livro healy
+# graficos base so com variaveis
+gdp_x_vida <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp))
+gdp_x_vida_continentes <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent, fill = continent))
+# scatter plot simples c linha de erro
+gdp_x_vida_scat<- gdp_x_vida + geom_point() + geom_smooth()
+# scatter plot com linha de erro usando modelo de linha
+gdp_x_vida_tendencia <- gdp_x_vida + geom_point() + geom_smooth(method = "lm")
+# agora escala em logaritmo de base 10
+gdp_x_vida_log <- gdp_x_vida_tendencia + scale_x_log10(labels = scales::comma)
+# grafico anterior colorido
+gdp_x_vida_log_colorido <- gdp_x_vida + geom_point(color = "orange") +
+  geom_smooth(method = "lm") + scale_x_log10(labels = scales::comma)
+
+# grafico com vários rotulos para melhor compreensão
+gdp_x_vida_log_informado <- gdp_x_vida_log_colorido + labs(x = "GDP per Capita",
+                                                           y = "life expetcancy",
+                                                           title = "Economic growth and life expectancy",
+                                                           subtitle = "Data points are country-years",
+                                                           caption = "Source: GapMinder")
+
+# grafico com rotulos e agrupamento de dados por continente
+gdp_x_vida_log_continentes <- gdp_x_vida_continentes + 
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "loess") +
+  scale_x_log10(labels = scales::comma) +
+  labs(x = "GDP per Capita",
+       y = "life expetcancy",
+       title = "Economic growth and life expectancy",
+       subtitle = "Data points are country-years",
+       caption = "Source: GapMinder")
+
+# dividindo para que os pontos sejam por continente mas a linha de tendencia não
+gdp_x_vida_log_continentes_uma_linha <- gdp_x_vida +
+  geom_point(mapping = aes(color = continent)) +
+  geom_smooth(method = "loess") +
+  scale_x_log10(labels = scales::comma)
+# o geom point e o smooth pegam o mapping do ggplot, mas so o point tem também o
+# mapping de color = continent, setado dentro do mesmo
+
+# fazendo gradiente de cores para população de cada dado
+gdp_x_vida_log_gradiente <- gdp_x_vida +
+  geom_point(mapping = aes(color = log(pop))) +
+  scale_x_log10(labels = scales::comma)
+# aqui foi usada a função log, que transforma a variável para intervalos logaritmicos
+
+gdp_x_vida_tendencia 
+gdp_x_vida_log_informado
+gdp_x_vida_log_continentes_uma_linha
+gdp_x_vida_log_gradiente
+```
+

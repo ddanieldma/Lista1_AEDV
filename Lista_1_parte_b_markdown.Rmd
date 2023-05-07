@@ -1,0 +1,129 @@
+## Parte B
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(socviz)
+library(ggrepel)
+library(gapminder)
+
+# gráficos feitos no livro healy
+# graficos base so com variaveis
+gdp_x_vida <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp))
+gdp_x_vida_continentes <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent, fill = continent))
+# scatter plot simples c linha de erro
+gdp_x_vida_scat<- gdp_x_vida + geom_point() + geom_smooth()
+# scatter plot com linha de erro usando modelo de linha
+gdp_x_vida_tendencia <- gdp_x_vida + geom_point() + geom_smooth(method = "lm")
+# agora escala em logaritmo de base 10
+gdp_x_vida_log <- gdp_x_vida_tendencia + scale_x_log10(labels = scales::comma)
+# grafico anterior colorido
+gdp_x_vida_log_colorido <- gdp_x_vida + geom_point(color = "gray50", alpha = 0.15) +
+  geom_smooth(method = "lm") + scale_x_log10(labels = scales::comma)
+
+# grafico com vários rotulos para melhor compreensão
+gdp_x_vida_log_informado <- gdp_x_vida_log_colorido + labs(x = "GDP per Capita",
+                                                           y = "life expetcancy",
+                                                           title = "Economic growth and life expectancy",
+                                                           subtitle = "Data points are country-years",
+                                                           caption = "Source: GapMinder")
+
+# grafico com rotulos e agrupamento de dados por continente
+gdp_x_vida_log_continentes <- gdp_x_vida_continentes + 
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "loess") +
+  scale_x_log10(labels = scales::comma) +
+  labs(x = "GDP per Capita",
+       y = "life expetcancy",
+       title = "Economic growth and life expectancy",
+       subtitle = "Data points are country-years",
+       caption = "Source: GapMinder")
+
+# dividindo para que os pontos sejam por continente mas a linha de tendencia não
+gdp_x_vida_log_continentes_uma_linha <- gdp_x_vida +
+  geom_point(mapping = aes(color = continent)) +
+  geom_smooth(method = "loess", color = "black") +
+  scale_x_log10(labels = scales::comma)
+# o geom point e o smooth pegam o mapping do ggplot, mas so o point tem também o
+# mapping de color = continent, setado dentro do mesmo
+
+# fazendo gradiente de cores para população de cada dado
+gdp_x_vida_log_gradiente <- gdp_x_vida +
+  geom_point(mapping = aes(color = log(pop))) +
+  scale_x_log10(labels = scales::comma)
+# aqui foi usada a função log, que transforma a variável para intervalos logaritmicos
+
+gdp_x_vida_tendencia + geom_text_repel(data = subset(gapminder, gdpPercap > 50000),
+                                       mapping = aes(label = country),
+                                       size = 2) +
+  labs(title = "PIB per capta por expectativa de vida",
+       subtitle = "Pontos são países-ano") +
+  scale_y_continuous(breaks = seq(0,100,20))
+
+```
+
+### Destacando cada um dos continentes no gráfico
+
+Américas
+
+```{r}
+gdp_x_vida_log_informado + geom_point(data = subset(gapminder, continent == "Americas"),
+                                      mapping = aes(color = continent)) +
+  scale_color_manual(values = ("red"))
+```
+
+Africa
+
+```{r}
+gdp_x_vida_log_informado + geom_point(data = subset(gapminder, continent == "Africa"),
+                                      mapping = aes(color = continent)) +
+  scale_color_manual(values = ("brown"))
+```
+
+Europa
+
+```{r}
+gdp_x_vida_log_informado + geom_point(data = subset(gapminder, continent == "Europe"),
+                                      mapping = aes(color = continent)) +
+  scale_color_manual(values = ("blue"))
+```
+
+Ásia
+
+```{r}
+gdp_x_vida_log_informado + geom_point(data = subset(gapminder, continent == "Asia"),
+                                      mapping = aes(color = continent)) +
+  scale_color_manual(values = ("orange"))
+```
+
+Oceania
+
+```{r}
+gdp_x_vida_log_informado + geom_point(data = subset(gapminder, continent == "Oceania"),
+                                      mapping = aes(color = continent)) +
+  scale_color_manual(values = ("darkgreen"))
+```
+
+
+Gráfico com mudança no tema, na paleta de cores usada nos pontos e a linha de tendência em cor preta
+```{r}
+gdp_x_vida_log_continentes_uma_linha +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Crescimento econômico e expectativa de vida",
+       subtitle = "Pontos são países-ano",
+       x = "PIB per capta (escala logarítmica)",
+       y = "expectativa de vida") +
+  theme_classic()
+```
+
+Mesmo gráfico mas com cores mais fracas para ressaltar a linha de tendência no meio
+```{r}
+gdp_x_vida_log_continentes_uma_linha +
+  scale_color_brewer(palette = "Pastel1") +
+  labs(title = "Crescimento econômico e expectativa de vida",
+       subtitle = "Pontos são países-ano",
+       x = "PIB per capta (escala logarítmica)",
+       y = "expectativa de vida") +
+  theme_classic()
+```
+
