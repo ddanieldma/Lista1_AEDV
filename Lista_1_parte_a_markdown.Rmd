@@ -126,4 +126,3 @@ gdp_x_vida_log_informado
 gdp_x_vida_log_continentes_uma_linha
 gdp_x_vida_log_gradiente
 ```
-
